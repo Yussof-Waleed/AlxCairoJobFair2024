@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    #reader {
+        width: 80%;
+        max-width: 500px;
+        margin: auto;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none; /* Initially hidden */
+            justify-content: center;
+            align-items: center;
+            color: black;
+        }
+
+    /* Card styling */
+    .popup-card {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        max-width: 90%;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Close button styling */
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: transparent;
+        border: none;
+        font-size: 20px;
+        color: #333;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-card position-relative">
+            <button class="close-btn" id="closePopup">&times;</button>
+            <h5>Leave a Comment</h5>
+            <form method="post" class="mt-2" action="">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Comment</label>
+                    <textarea class="form-control" name="comment" id="comment" rows="3" placeholder="Leave a comment..."></textarea>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="flexCheckChecked" checked>
+                    <label class="form-check-label" for="flexCheckChecked">
+                      View Profile
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    <h1>QR Code Scanner</h1>
+    <div id="reader"></div>
+    <div id="result" hidden>
+        <p>Scanned QR Code: <span id="scanned-result">None</span></p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            decodedText = decodedText.trim()
+            // print(decodedText)
+            // window.location.href = decodedText;
+            // console.log(`Code scanned: ${decodedText}`);
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.style.display = 'flex'; // Display the overlay
+            document.getElementById('scanned-result').textContent = decodedText;
+            // Redirect to the decoded URL
+            console.log(decodedText)
+              // Assumes decodedText is a valid URL
+        };
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        const html5QrCode = new Html5Qrcode("reader");
+
+        // Start the camera
+        html5QrCode.start(
+            { facingMode: "environment" }, // Use back camera
+            config,
+            qrCodeSuccessCallback
+        ).catch(err => {
+            console.error("Unable to start the QR scanner.", err);
+        });
+
+        // Close button functionality
+        const closePopup = document.getElementById('closePopup')
+        const checkBox = document.getElementById("flexCheckChecked")
+        closePopup.addEventListener('click', () => {
+            const popupOverlay = document.getElementById('popupOverlay');
+            popupOverlay.style.display = 'none'; // Hide the overlay
+            checkBox.checked = true
+        });
+
+        // Redirection
+        document.getElementsByTagName("form")[0].addEventListener("submit", async (e) => {
+            e.preventDefault()
+            let viewProfile = checkBox.checked;
+            let redirect_link = document.getElementById('scanned-result').textContent
+            let comment = document.getElementById("comment").value
+            if (comment.length < 7){
+                return
+            }
+            const formData = new URLSearchParams();
+            formData.append('comment', comment);
+            let uid = redirect_link.split("/").pop();
+            await fetch(`comment/${uid}`, {
+                method: "POST",
+                headers: {
+                    'X-CSRFToken': document.querySelector("input[name='csrfmiddlewaretoken']").value, 
+                    "Content-Type": "application/x-www-form-urlencoded"// Include CSRF token here
+                },
+                body: formData.toString()
+            })
+            if (viewProfile){
+                window.location.href = document.getElementById('scanned-result').textContent
+            }
+            else {
+                closePopup.click()
+            }
+            return false
+        })
+    </script>
+{% endblock %}

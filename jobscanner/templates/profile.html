@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+
+    .profile-container {
+        width: 400px;
+        background: white;
+        color: black;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 3rem auto;
+    }
+
+    form {
+        max-width: 400px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-container text-center">
+        <h2 class="mb-4">Profile Details</h2>
+        <div class="mb-3">
+            <strong>Name:</strong> <span id="name">{{ profile.name }}</span>
+        </div>
+        <div class="mb-3">
+            <strong>Email:</strong> <span id="email">{{ profile.email }}</span>
+        </div>
+        <div class="mb-3">
+            <strong>ALX Track:</strong> <span id="graduated_from">{{ profile.track }}</span>
+        </div>
+        <div class="mb-3">
+            <strong>Phone Number:</strong> <span id="phone_number">{{ profile.phone_number }}</span>
+        </div>
+        <a href="{{ profile.cv_url }}" class="btn btn-primary w-100 mb-2">View CV</a>
+        <a href="{{ profile.linkedin }}">
+            <button class="btn btn-primary w-100">Linkedin</button>
+        </a>
+    </div>
+
+    <form method="post" class="mt-2 mx-auto" action="{% url 'comment' profile.pk %}">
+        {% csrf_token %}
+        <div class="mb-3">
+        <label for="comment" class="form-label">Leave a comment</label>
+        <textarea class="form-control" name="comment" id="comment" rows="3">{{ comment }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Comment</button>
+    </form>
+
+    <script>
+        document.getElementsByTagName("form")[0].addEventListener("submit", (e) => {
+            let comment = document.getElementById("comment").value
+            if (!comment){
+                e.preventDefault()
+                return
+            }
+        })
+    </script>
+{% endblock %}

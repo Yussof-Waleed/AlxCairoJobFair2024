@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block style %}
+<style>
+    .card {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+        transition: 0.3s ease;
+    }
+
+    .container{
+        align-items: normal;
+        height: fit-content;
+        margin-top: 10px !important;
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+    {% for scanlog in scanlogs %}
+        {% if forloop.counter0|divisibleby:3 %}
+        <div class="row"> <!-- Start a new row every 3 cards -->
+        {% endif %}
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ scanlog.attendee.name }}</h5>
+                    <p class="card-text">
+                        <strong>Email:</strong> {{ scanlog.attendee.email }}<br>
+                        <strong>ALX Track:</strong> {{ scanlog.attendee.track }}<br>
+                        <strong>Comment:</strong> {{ scanlog.comment }} <br>
+                        <a href="{{ scanlog.attendee.linkedin }}">
+                            <button class="btn btn-primary">Linkedin</button>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% if forloop.counter|divisibleby:3 or forloop.last %}
+        </div> <!-- Close the row after 3 cards or at the end -->
+        {% endif %}
+    {% endfor %}
+
+
+{% endblock %}
