@@ -24,12 +24,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-cugzgin^hejlnn-)9!1_yjh(9gqed22v94wja+xc*z=_54x_gk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
-    "alxfusion.alwaysdata.net",
     "spyce.alwaysdata.net",
-    "127.0.0.1",
     ]
 
 # CSRF_TRUSTED_ORIGINS = [
