@@ -28,6 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "spyce.alwaysdata.net",
+    "alxfusion.yussof.me"
     ]
 
 # CSRF_TRUSTED_ORIGINS = [
